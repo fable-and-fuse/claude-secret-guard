@@ -26,6 +26,15 @@ def bash(cmd, tool="Bash"):
     "cat .env",
     "cat ./config/.env.local",
     "head -n 5 .env.production",
+    "grep KEY .env",
+    "sed -n p .env",
+    "awk 1 .env.local",
+    "sort .env",
+    "xxd .env",
+    "while read l; do echo $l; done < .env",
+    "export",
+    "declare -p",
+    "declare -x | grep TOKEN",
 ])
 def test_blocks_secret_exposing_shell(cmd):
     assert bash(cmd)
@@ -36,6 +45,7 @@ def test_blocks_secret_exposing_shell(cmd):
     "Write-Output $env:GEMINI_API_KEY",
     "Get-ChildItem env:",
     "Get-Content .env",
+    "Select-String -Path .env -Pattern KEY",
     "[Environment]::GetEnvironmentVariable('GEMINI_API_KEY','User')",
 ])
 def test_blocks_secret_exposing_powershell(cmd):
@@ -50,6 +60,10 @@ def test_blocks_secret_exposing_powershell(cmd):
     "git commit -m 'update env docs'",
     "set -euo pipefail; make test",
     "echo $HOME",
+    "export PATH=$PATH:/opt/bin",
+    "grep -r TODO src/",
+    "sort names.txt",
+    "declare -a items",
 ])
 def test_allows_safe_commands(cmd):
     assert bash(cmd) is None
@@ -60,6 +74,14 @@ def test_read_rules():
     assert guard.check({"tool_name": "Read", "tool_input": {"file_path": r"C:\repo\.env.local"}})
     assert guard.check({"tool_name": "Read", "tool_input": {"file_path": "/repo/.env.example"}}) is None
     assert guard.check({"tool_name": "Read", "tool_input": {"file_path": "/repo/src/environment.py"}}) is None
+
+
+def test_grep_tool_rules():
+    assert guard.check({"tool_name": "Grep", "tool_input": {"pattern": "KEY", "path": "/repo/.env"}})
+    assert guard.check({"tool_name": "Grep", "tool_input": {"pattern": "KEY", "glob": ".env*"}})
+    assert guard.check({"tool_name": "Grep", "tool_input": {"pattern": "KEY", "glob": "**/.env.local"}})
+    assert guard.check({"tool_name": "Grep", "tool_input": {"pattern": "KEY", "glob": ".env.example"}}) is None
+    assert guard.check({"tool_name": "Grep", "tool_input": {"pattern": "TODO", "path": "src"}}) is None
 
 
 def test_blocks_writing_live_credentials():

@@ -7,9 +7,9 @@ Coding agents with shell access will sometimes "check" a credential by echoing i
 ## Blocks
 - `echo` / `printf` / `Write-Output` of variables named like `*KEY*`, `*TOKEN*`, `*SECRET*`, `*PASSWORD*`, `*CREDENTIAL*`
 - bare `$env:SECRET` in PowerShell, `GetEnvironmentVariable('..._KEY')`
-- whole-environment dumps: `printenv`, `env`, `set`, `Get-ChildItem env:`
-- printing `.env`, `.env.local`, `.env.production`, … (`cat`, `head`, `Get-Content`, …)
-- the `Read` tool on `.env*` files
+- whole-environment dumps: `printenv`, `env`, `set`, bare `export`, `declare -p`/`-x`, `Get-ChildItem env:`
+- printing `.env`, `.env.local`, `.env.production`, … (`cat`, `head`, `grep`, `sed`, `awk`, `sort`, `xxd`, `Get-Content`, `Select-String`, `< .env` redirects, …)
+- the `Read` and `Grep` tools on `.env*` files
 - `Write` / `Edit` content containing live-looking Google, Anthropic, OpenAI, GitHub or Slack keys, or private key blocks
 
 ## Allows
@@ -25,7 +25,7 @@ Coding agents with shell access will sometimes "check" a credential by echoing i
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash|PowerShell|Read|Write|Edit|MultiEdit|NotebookEdit",
+        "matcher": "Bash|PowerShell|Read|Grep|Write|Edit|MultiEdit|NotebookEdit",
         "hooks": [{ "type": "command", "command": "python .claude/hooks/guard_secrets.py", "timeout": 10 }]
       }
     ]

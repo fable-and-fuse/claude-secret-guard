@@ -22,12 +22,14 @@ SHELL_RULES = [
     (rf"\b(?:echo|printf|print|Write-(?:Host|Output))\b[^|;&\n]*\$(?:env:)?\{{?{SECRET_VAR}\b",
      "prints a secret environment variable"),
     (rf"\$env:{SECRET_VAR}\s*(?:$|[|;])", "evaluates a secret environment variable to output"),
-    (r"(?:^|[|;&]\s*)(?:printenv|env|set|export\s+-p|Get-ChildItem\s+env:|gci\s+env:|ls\s+env:|dir\s+env:)\s*(?:$|[|;&>])",
+    (r"(?:^|[|;&]\s*)(?:printenv|env|set|export|export\s+-p|declare\s+-[px]|typeset\s+-[px]|Get-ChildItem\s+env:|gci\s+env:|ls\s+env:|dir\s+env:)\s*(?:$|[|;&>])",
      "dumps the whole environment"),
     (rf"\bprintenv\s+{SECRET_VAR}\b", "prints a secret environment variable"),
     (rf"GetEnvironmentVariable\(\s*['\"]{SECRET_VAR}['\"]", "reads a secret environment variable"),
-    (rf"\b(?:cat|type|more|less|head|tail|bat|Get-Content|gc|nl|strings)\b[^|;&\n]*{ENV_FILE}",
+    (rf"\b(?:cat|type|more|less|head|tail|bat|Get-Content|gc|nl|strings|grep|egrep|rg|ag|sed|awk|cut|sort|uniq|"
+     rf"xxd|od|hexdump|base64|diff|cmp|tac|rev|findstr|Select-String|sls)\b[^|;&\n]*{ENV_FILE}",
      "prints a .env file"),
+    (rf"<\s*{ENV_FILE}", "feeds a .env file into a command"),
 ]
 
 KEY_PATTERNS = [
@@ -49,9 +51,10 @@ def check(event: dict) -> str | None:
         for pattern, why in SHELL_RULES:
             if re.search(pattern, cmd, re.IGNORECASE):
                 return f"Blocked: this command {why}. Check presence instead, e.g. [ -n \"$VAR\" ] && echo set."
-    if tool == "Read":
-        path = inp.get("file_path", "")
-        if re.search(ENV_FILE, " " + path):
+    if tool in ("Read", "Grep"):
+        targets = (inp.get("file_path", ""), inp.get("path", ""))
+        env_glob = re.search(r"(?:^|[/\\{,])\.env(?!\.example\b)", inp.get("glob", ""))
+        if env_glob or any(t and re.search(ENV_FILE, " " + t) for t in targets):
             return "Blocked: reading .env files exposes secrets. Ask the user which variable names exist instead."
     if tool in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
         blob = json.dumps(inp)
