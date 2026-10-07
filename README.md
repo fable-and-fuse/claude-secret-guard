@@ -18,6 +18,18 @@ Coding agents with shell access will sometimes "check" a credential by echoing i
 - everything else
 
 ## Install
+
+### As a plugin (all your projects)
+In Claude Code:
+```
+/plugin marketplace add fable-and-fuse/claude-secret-guard
+/plugin install secret-guard@fable-and-fuse
+```
+Restart Claude Code, then ask it to `echo $SOME_API_KEY`: it will be blocked with a reason. The plugin needs `bash` (Git Bash on Windows, which Claude Code already uses) and Python 3.8+. If no Python is found, the hook prints a warning and lets the call through.
+
+The hook already blocks reading `.env` files. Plugins can't add permission rules, so if you also want the `permissions.deny` backstop shown below, add it to your settings yourself.
+
+### Per project (manual)
 1. Copy `.claude/hooks/guard_secrets.py` into your project.
 2. Add this to `.claude/settings.json`, or merge it into the existing file:
 ```json

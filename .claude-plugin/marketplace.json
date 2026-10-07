@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "fable-and-fuse",
+  "description": "Claude Code plugins from Fable & Fuse Studios",
+  "owner": {
+    "name": "Fable & Fuse Studios",
+    "url": "https://github.com/fable-and-fuse"
+  },
+  "plugins": [
+    {
+      "name": "secret-guard",
+      "description": "PreToolUse hook that stops Claude Code from printing your API keys (env var echoes, environment dumps, .env reads, keys written into files).",
+      "source": "./",
+      "category": "security"
+    }
+  ]
+}

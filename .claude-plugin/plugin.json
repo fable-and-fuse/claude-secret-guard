@@ -1,0 +1,13 @@
+{
+  "name": "secret-guard",
+  "version": "1.1.0",
+  "description": "PreToolUse hook that stops Claude Code from printing your API keys: blocks echoing secret env vars, environment dumps, reading .env files, and writing live-looking keys into files. MIT, Python 3.8+, no dependencies.",
+  "author": {
+    "name": "Fable & Fuse Studios",
+    "url": "https://github.com/fable-and-fuse"
+  },
+  "homepage": "https://github.com/fable-and-fuse/claude-secret-guard",
+  "repository": "https://github.com/fable-and-fuse/claude-secret-guard",
+  "license": "MIT",
+  "keywords": ["security", "secrets", "hooks", "api-keys", "dotenv"]
+}
